@@ -1,0 +1,49 @@
+
+   def deploy(war, id) {
+             //sh "cp -r sbi/${war} D:\\\\BuildTools\\\\apache-tomcat-7.0.67\\\\webapps\\\\${id}.war"
+	            sh "cp BookingApp/target/${war} /app/ci/apache-tomcat-8.5.14/webapps/${id}.war"
+		         }
+			      
+			      node{
+			          
+				      stage('checkout code'){
+				              checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'b7951842-bcd8-47e5-b41e-acab18f838cd', url: 'https://github.com/Narayanaj/web-project.git']]])
+					          }
+						      mvnHome = tool 'M3' 
+
+						          stage('build code'){
+							          //build source code
+								           // Run the maven build
+									         if (isUnix()) {
+										          sh "'${mvnHome}/bin/mvn' -f BookingApp/pom.xml -Dmaven.test.failure.ignore clean package"
+											        } else {
+												         bat(/${mvnHome}\bin\mvn -Dmaven.test.failure.ignore clean install/)
+													       } 
+													           }
+														       stage('Dev deployment'){
+														               
+															           deploy('BookingApp.war','BookingApp')
+																       }
+																             stage ('sonar code analysis') {
+																	               withSonarQubeEnv('local-sonar') {
+																		             sh 'mvn -f BookingApp/pom.xml clean package sonar:sonar'
+																			         }
+																				           //sonar analysis 
+																					         }
+																						       
+																						             stage ('nexus repository')
+																							           {
+																								             
+																									               //code pushing to nexus repository
+																										             }
+																											           
+																												          stage ('QA deployment'){
+																													            
+																														          //input message: 'You REALLY want to build?', ok: 'Yes'
+																															        //waiting for user input to approve QA deploymnet
+																																      //input id: '1234', message: 'QA approved', ok: 'deploy', parameters: [string(defaultValue: 'Approved', description: '', name: 'Name')], submitterParameter: 'string'
+																																              input id: '1234', message: 'approved', ok: 'deploy', parameters: [string(defaultValue: 'approve', description: 'please choose your option', name: 'name')], submitterParameter: 'string'
+																																	                 
+																																			        }
+																																				}
+
