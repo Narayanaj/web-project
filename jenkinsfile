@@ -1,5 +1,6 @@
+#!/bin/bash
 
-   def deploy(war, id) {
+def deploy(war, id) {
              //sh "cp -r sbi/${war} D:\\\\BuildTools\\\\apache-tomcat-7.0.67\\\\webapps\\\\${id}.war"
 	            sh "cp BookingApp/target/${war} /app/ci/apache-tomcat-8.5.14/webapps/${id}.war"
 		         }
